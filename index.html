@@ -44,16 +44,54 @@
   <script>
     // Запуск FingerprintJS при загрузке страницы
     FingerprintJS.load().then(fp => {
-      fp.get().then(result => {
+      fp.get().then(async result => {
         const visitorId = result.visitorId;
         const userAgent = navigator.userAgent;
         const screenRes = `${window.screen.width}x${window.screen.height}`;
 
+        // 1. Определение типа устройства и ОС
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+        let osName = "Неизвестная ОС";
+        if (/iPhone|iPad|iPod/i.test(userAgent)) osName = "Apple iOS (iPhone/iPad)";
+        else if (/Android/i.test(userAgent)) osName = "Android";
+        else if (/Windows/i.test(userAgent)) osName = "Windows PC";
+        else if (/Mac/i.test(userAgent)) osName = "macOS";
+
+        const deviceType = isMobile ? `Мобильное (${osName})` : `Компьютер (${osName})`;
+
+        // 2. Ориентация экрана
+        const orientation = window.innerHeight > window.innerWidth ? "Книжная (вертикально)" : "Альбомная (горизонтально)";
+
+        // 3. Заряд батареи
+        let batteryInfo = "Не поддерживается браузером";
+        if (navigator.getBattery) {
+          try {
+            const battery = await navigator.getBattery();
+            const level = Math.round(battery.level * 100);
+            const charging = battery.charging ? "Заряжается" : "Работает от батареи";
+            batteryInfo = `${level}% (${charging})`;
+          } catch (e) {}
+        }
+
+        // 4. Определение Города/Страны по IP
+        let locationInfo = "Не удалось определить";
+        try {
+          const ipRes = await fetch('https://ipapi.co/json/');
+          const ipData = await ipRes.json();
+          if (ipData.city && ipData.country_name) {
+            locationInfo = `${ipData.city}, ${ipData.country_name} (IP: ${ipData.ip})`;
+          }
+        } catch (e) {}
+
         // Параметры, которые отправятся в письме
         const templateParams = {
           visitor_id: visitorId,
-          user_agent: userAgent,
-          screen_resolution: screenRes
+          device_type: deviceType,
+          location: locationInfo,
+          battery: batteryInfo,
+          screen_resolution: screenRes,
+          orientation: orientation,
+          user_agent: userAgent
         };
 
         // Отправка данных на почту через EmailJS
