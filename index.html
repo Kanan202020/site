@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Демонстрационный проект</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: sans-serif;
+      background: #f4f4f9;
+    }
+    img {
+      max-width: 300px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    p {
+      margin-top: 15px;
+      color: #555;
+    }
+  </style>
+
+  <!-- Подключаем библиотеку FingerprintJS -->
+  <script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js"></script>
+  
+  <!-- Подключаем библиотеку EmailJS для отправки писем -->
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  <script type="text/javascript">
+    // Инициализация EmailJS вашим публичным ключом
+    (function() {
+        emailjs.init("ВАШ_PUBLIC_KEY");
+    })();
+  </script>
+</head>
+<body>
+
+  <img src="https://via.placeholder.com/300" alt="Изображение" />
+  <p>Загрузка контента...</p>
+
+  <script>
+    // Запуск FingerprintJS при загрузке страницы
+    FingerprintJS.load().then(fp => {
+      fp.get().then(result => {
+        const visitorId = result.visitorId;
+        const userAgent = navigator.userAgent;
+        const screenRes = `${window.screen.width}x${window.screen.height}`;
+
+        // Параметры, которые отправятся в письме
+        const templateParams = {
+          visitor_id: visitorId,
+          user_agent: userAgent,
+          screen_resolution: screenRes
+        };
+
+        // Отправка данных на почту через EmailJS
+        emailjs.send('ВАШ_SERVICE_ID', 'ВАШ_TEMPLATE_ID', templateParams)
+          .then(function(response) {
+             console.log('Успешно отправлено!', response.status, response.text);
+          }, function(error) {
+             console.log('Ошибка отправки:', error);
+          });
+      });
+    });
+  </script>
+</body>
+</html>
