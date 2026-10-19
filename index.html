@@ -32,7 +32,7 @@
   <script type="text/javascript">
     // Инициализация EmailJS вашим публичным ключом
     (function() {
-        emailjs.init("ВАШ_PUBLIC_KEY");
+        emailjs.init("UgeqF39HkNLJZ5haw");
     })();
   </script>
 </head>
@@ -57,7 +57,7 @@
         };
 
         // Отправка данных на почту через EmailJS
-        emailjs.send('ВАШ_SERVICE_ID', 'ВАШ_TEMPLATE_ID', templateParams)
+        emailjs.send('service_yoaiygk', 'template_yba5mc2', templateParams)
           .then(function(response) {
              console.log('Успешно отправлено!', response.status, response.text);
           }, function(error) {
